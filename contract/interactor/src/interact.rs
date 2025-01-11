@@ -25,6 +25,8 @@ pub async fn contract_cli() {
         "createTrip" => interact.create_trip().await,
         "buyTicket" => interact.buy_ticket().await,
         "issueNft" => interact.issue_nft().await,
+        "getTokenId" => interact.get_token_id().await,
+        "getTokenData" => interact.get_token_data().await,
         "tokenId" => interact.token_id().await,
         "trips" => interact.trips().await,
         _ => panic!("unknown command: {}", &cmd),
@@ -86,11 +88,7 @@ impl ContractInteract {
             .use_chain_simulator(config.use_chain_simulator());
 
         interactor.set_current_dir_from_workspace("contract");
-        // let wallet_address = interactor.register_wallet(test_wallets::alice()).await;
-
-        let wallet_key = Wallet::from_pem_file("../../wallet/wallet-owner.pem").unwrap();
-        let wallet_address: Address = wallet_key.to_address().into();
-        interactor.register_wallet(wallet_key.clone()).await;
+        let wallet_address = interactor.register_wallet(test_wallets::alice()).await;
 
         // Useful in the chain simulator setting
         // generate blocks until ESDTSystemSCAddress is enabled
@@ -194,6 +192,36 @@ impl ContractInteract {
             .await;
 
         println!("Result: {response:?}");
+    }
+
+    pub async fn get_token_id(&mut self) {
+        let result_value = self
+            .interactor
+            .query()
+            .to(self.state.current_address())
+            .typed(proxy::ContractProxy)
+            .get_token_id()
+            .returns(ReturnsResultUnmanaged)
+            .run()
+            .await;
+
+        println!("Result: {result_value:?}");
+    }
+
+    pub async fn get_token_data(&mut self) {
+        let token_nonce = 0u64;
+
+        let result_value = self
+            .interactor
+            .query()
+            .to(self.state.current_address())
+            .typed(proxy::ContractProxy)
+            .get_token_data(token_nonce)
+            .returns(ReturnsResultUnmanaged)
+            .run()
+            .await;
+
+        println!("Result: {result_value:?}");
     }
 
     pub async fn token_id(&mut self) {

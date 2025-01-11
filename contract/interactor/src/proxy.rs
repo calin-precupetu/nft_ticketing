@@ -117,6 +117,28 @@ where
             .original_result()
     }
 
+    pub fn get_token_id(
+        self,
+    ) -> TxTypedCall<Env, From, To, NotPayable, Gas, TokenIdentifier<Env::Api>> {
+        self.wrapped_tx
+            .payment(NotPayable)
+            .raw_call("getTokenId")
+            .original_result()
+    }
+
+    pub fn get_token_data<
+        Arg0: ProxyArg<u64>,
+    >(
+        self,
+        token_nonce: Arg0,
+    ) -> TxTypedCall<Env, From, To, NotPayable, Gas, EsdtTokenData<Env::Api>> {
+        self.wrapped_tx
+            .payment(NotPayable)
+            .raw_call("getTokenData")
+            .argument(&token_nonce)
+            .original_result()
+    }
+
     pub fn token_id(
         self,
     ) -> TxTypedCall<Env, From, To, NotPayable, Gas, TokenIdentifier<Env::Api>> {

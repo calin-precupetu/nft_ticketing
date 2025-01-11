@@ -76,43 +76,53 @@ pub trait Contract {
 
         require!(!self.token_id().is_empty(), "NFT not issued");
 
-        // Create NFT with the trip ID as an attribute
-        let nft_token_id = TokenIdentifier::from(ManagedBuffer::from(b"train_ticket"));
         let mut ticket_attributes_buffer = ManagedBuffer::new();
         ticket_attributes_buffer.append(&ManagedBuffer::from(b"TripID: "));
         let id_bytes = id.to_le_bytes();
         ticket_attributes_buffer.append(&ManagedBuffer::from(&id_bytes));
 
-        // Hash the attributes to create a unique identifier for the NFT
-        let attributes_sha256 = self.crypto().sha256(&ticket_attributes_buffer);
-        let attributes_hash = attributes_sha256.as_managed_buffer();
-
-        // Define the name of the NFT (could be the trip's source and destination for example)
-        let nft_name = ManagedBuffer::from(b"Train Ticket");
-
-        // Create the NFT
-        self.send().esdt_nft_create(
-            &nft_token_id,                // NFT token ID (class identifier)
-            &BigUint::from(1u32),          // Quantity (1 ticket per NFT)
-            &nft_name,                     // Name of the NFT
-            &BigUint::from(0u32),          // Royalties (assuming no royalties for simplicity)
-            attributes_hash,               // Hash of the attributes
-            &ManagedBuffer::new(),         // Card details or additional metadata
-            &ManagedVec::new(),            // Additional optional fields
-        );
-
-        let nonce: u64 = 1;
-
-        self.send().direct_esdt(
+        self.token_id().nft_create_and_send(
             &self.blockchain().get_caller(),
-            self.token_id().get_token_id_ref(),
-            nonce,
-            &BigUint::from(NFT_AMOUNT),
+            BigUint::from(1u32),
+            &ticket_attributes_buffer,
         );
 
-        let payment = self.call_value().egld_value();
-        let owner = self.blockchain().get_owner_address();
-        self.tx().to(owner).payment(payment).transfer();
+        // // Create NFT with the trip ID as an attribute
+        // let nft_token_id = TokenIdentifier::from(ManagedBuffer::from(b"train_ticket"));
+        // let mut ticket_attributes_buffer = ManagedBuffer::new();
+        // ticket_attributes_buffer.append(&ManagedBuffer::from(b"TripID: "));
+        // let id_bytes = id.to_le_bytes();
+        // ticket_attributes_buffer.append(&ManagedBuffer::from(&id_bytes));
+
+        // // Hash the attributes to create a unique identifier for the NFT
+        // let attributes_sha256 = self.crypto().sha256(&ticket_attributes_buffer);
+        // let attributes_hash = attributes_sha256.as_managed_buffer();
+
+        // // Define the name of the NFT (could be the trip's source and destination for example)
+        // let nft_name = ManagedBuffer::from(b"Train Ticket");
+
+        // // Create the NFT
+        // self.send().esdt_nft_create(
+        //     &nft_token_id,                // NFT token ID (class identifier)
+        //     &BigUint::from(1u32),          // Quantity (1 ticket per NFT)
+        //     &nft_name,                     // Name of the NFT
+        //     &BigUint::from(0u32),          // Royalties (assuming no royalties for simplicity)
+        //     attributes_hash,               // Hash of the attributes
+        //     &ManagedBuffer::new(),         // Card details or additional metadata
+        //     &ManagedVec::new(),            // Additional optional fields
+        // );
+
+        // let nonce: u64 = 1;
+
+        // self.send().direct_esdt(
+        //     &self.blockchain().get_caller(),
+        //     self.token_id().get_token_id_ref(),
+        //     &BigUint::from(NFT_AMOUNT),
+        // );
+
+        // let payment = self.call_value().egld_value();
+        // let owner = self.blockchain().get_owner_address();
+        // self.tx().to(owner).payment(payment).transfer();
     }
 
     #[only_owner]
@@ -147,6 +157,18 @@ pub trait Contract {
             nonce,
             &BigUint::from(NFT_AMOUNT),
         );
+    }
+
+    // View
+
+    #[view(getTokenId)]
+    fn get_token_id(&self) -> TokenIdentifier {
+        self.token_id().get_token_id()
+    }
+
+    #[view(getTokenData)]
+    fn get_token_data(&self, token_nonce: u64) -> EsdtTokenData {
+        self.token_id().get_all_token_data(token_nonce)
     }
 
     // Storage mappers

@@ -7,6 +7,9 @@ from multiversx_sdk import (
     TransactionComputer
 )
 
+def string_to_hex(string: str) -> str:
+    return string.encode("utf-8").hex()
+
 # Initialize network provider and configurations
 provider = ProxyNetworkProvider("https://devnet-gateway.multiversx.com")
 network_config = provider.get_network_config()
@@ -22,24 +25,23 @@ contract_address = Address.new_from_bech32("erd1qqqqqqqqqqqqqpgquryd8zwcq6fcy686
 # Get the sender's nonce
 sender_on_network = provider.get_account(sender)
 
-# Trip details
-source = "436f6e7374616e7461"  # "Bucharest" in hex
-destination = "437261696f7661"  # "Craiova" in hex
-date = "323032352d30312d3130"  # "2025-01-10" in hex
-time = "31323a3330"            # "12:30" in hex
-price = "32"                   # 50 (in hundredths of EGLD, i.e., 0.50 EGLD) in hex
-ticket_count = "64"            # 100 in decimal, in hex
+# Define token display name and ticker for the NFT
+token_display_name = "Tickets"  # The display name of the NFT collection
+token_ticker = "TKT"  # The ticker for the NFT
 
-# Prepare transaction data for the addTrip endpoint
-function = "createTrip"
-data = f"{function}@{source}@{destination}@{date}@{time}@{price}@{ticket_count}"
+token_display_name_hex = string_to_hex(token_display_name)
+token_ticker_hex = string_to_hex(token_ticker)
+
+# Prepare transaction data for the issueNft endpoint
+function = "issueNft"
+data = f"{function}@{token_display_name_hex}@{token_ticker_hex}"
 
 # Create the transaction
 transaction = Transaction(
     sender=sender.bech32(),
     receiver=contract_address.bech32(),
-    value=0,  # No EGLD transferred for adding a trip
-    gas_limit=5000000,
+    value=10000000,
+    gas_limit=60000000,
     data=data.encode(),
     chain_id=network_config.chain_id,
 )
