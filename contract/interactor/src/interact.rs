@@ -24,6 +24,7 @@ pub async fn contract_cli() {
         "deploy" => interact.deploy().await,
         "createTrip" => interact.create_trip().await,
         "buyTicket" => interact.buy_ticket().await,
+        "setSpecialRoles" => interact.set_special_roles().await,
         "issueToken" => interact.issue_token().await,
         "nftTokenId" => interact.nft_token_id().await,
         "trips" => interact.trips().await,
@@ -86,7 +87,7 @@ impl ContractInteract {
             .use_chain_simulator(config.use_chain_simulator());
 
         interactor.set_current_dir_from_workspace("contract");
-        // let wallet_address = interactor.register_wallet(test_wallets::alice()).await;
+        //let wallet_address = interactor.register_wallet(test_wallets::alice()).await;
 
         let wallet_key = Wallet::from_pem_file("../../wallet/wallet-owner.pem").unwrap();
         let wallet_address: Address = wallet_key.to_address().into();
@@ -114,7 +115,7 @@ impl ContractInteract {
             .interactor
             .tx()
             .from(&self.wallet_address)
-            .gas(60_000_000u64)
+            .gas(30_000_000u64)
             .typed(proxy::ContractProxy)
             .init()
             .code(&self.contract_code)
@@ -170,6 +171,24 @@ impl ContractInteract {
             .typed(proxy::ContractProxy)
             .buy_ticket(id)
             .payment((TokenIdentifier::from(token_id.as_str()), token_nonce, token_amount))
+            .returns(ReturnsResultUnmanaged)
+            .run()
+            .await;
+
+        println!("Result: {response:?}");
+    }
+
+    pub async fn set_special_roles(&mut self) {
+        let address = bech32::decode("");
+
+        let response = self
+            .interactor
+            .tx()
+            .from(&self.wallet_address)
+            .to(self.state.current_address())
+            .gas(30_000_000u64)
+            .typed(proxy::ContractProxy)
+            .set_special_roles(address)
             .returns(ReturnsResultUnmanaged)
             .run()
             .await;

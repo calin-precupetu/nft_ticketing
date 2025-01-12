@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                            5
+// Endpoints:                            6
 // Async Callback:                       1
-// Total number of exported functions:   7
+// Total number of exported functions:   8
 
 #![no_std]
 
@@ -20,6 +20,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         init => init
         createTrip => create_trip
         buyTicket => buy_ticket
+        setSpecialRoles => set_special_roles
         issueToken => issue_token
         nftTokenId => nft_token_id
         trips => trips

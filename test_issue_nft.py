@@ -20,7 +20,7 @@ transaction_computer = TransactionComputer()
 
 # Sender and contract addresses
 sender = Address.new_from_bech32("erd1l0ug3af8jz902qt865rvkn0j9ja93h3mtlzkra0d4xxxgeu0325szx4mgc")
-contract_address = Address.new_from_bech32("erd1qqqqqqqqqqqqqpgqrtewahvjcyel89zrtlvdgcgquldwq5sp325s0d5dl6")
+contract_address = Address.new_from_bech32("erd1qqqqqqqqqqqqqpgq6er6chvccan8rp2p4sqn03f6xlzclm2h325swnejrg")
 
 # Get the sender's nonce
 sender_on_network = provider.get_account(sender)

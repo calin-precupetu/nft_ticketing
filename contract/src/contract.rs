@@ -225,6 +225,38 @@ pub trait Contract {
         // self.tx().to(owner).payment(payment).transfer();
     }
 
+    // #[only_owner]
+    // #[endpoint(transferNftCreateRole)]
+    // fn transfer_nft_create_role(
+    //     &self,
+    //     old_creator: &ManagedAddress,
+    //     new_creator: &ManagedAddress,
+    // ) {
+    //     let nft_token_id = self.nft_token_id().get();
+    //     self.send()
+    //         .esdt_system_sc_tx() 
+    //         .transfer_nft_create_role(
+    //             &nft_token_id,
+    //             old_creator,
+    //             new_creator,
+    //         )
+    //         .with_callback(self.callbacks().issue_callback())
+    //         .async_call_and_exit();
+    // }
+
+    #[only_owner]
+    #[endpoint(setSpecialRoles)]
+    fn set_special_roles(&self, 
+        address: &ManagedAddress,
+    ) {
+        let nft_token_id = self.nft_token_id().get();
+        self.send()
+            .esdt_system_sc_tx()
+            .set_special_roles(&self.blockchain().get_sc_address(), &nft_token_id, [EsdtLocalRole::NftCreate][..].iter().cloned(),)
+            .async_call_and_exit();
+    }
+
+
     #[only_owner]
     #[payable("EGLD")]
     #[endpoint(issueToken)]
