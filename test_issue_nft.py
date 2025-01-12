@@ -20,7 +20,7 @@ transaction_computer = TransactionComputer()
 
 # Sender and contract addresses
 sender = Address.new_from_bech32("erd1l0ug3af8jz902qt865rvkn0j9ja93h3mtlzkra0d4xxxgeu0325szx4mgc")
-contract_address = Address.new_from_bech32("erd1qqqqqqqqqqqqqpgquryd8zwcq6fcy6867ahjszpcj22sy2je325swas6jf")
+contract_address = Address.new_from_bech32("erd1qqqqqqqqqqqqqpgqrtewahvjcyel89zrtlvdgcgquldwq5sp325s0d5dl6")
 
 # Get the sender's nonce
 sender_on_network = provider.get_account(sender)
@@ -33,14 +33,14 @@ token_display_name_hex = string_to_hex(token_display_name)
 token_ticker_hex = string_to_hex(token_ticker)
 
 # Prepare transaction data for the issueNft endpoint
-function = "issueNft"
+function = "issueToken"
 data = f"{function}@{token_display_name_hex}@{token_ticker_hex}"
 
 # Create the transaction
 transaction = Transaction(
     sender=sender.bech32(),
     receiver=contract_address.bech32(),
-    value=10000000,
+    value=50000000000000000,
     gas_limit=60000000,
     data=data.encode(),
     chain_id=network_config.chain_id,

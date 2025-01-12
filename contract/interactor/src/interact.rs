@@ -24,10 +24,8 @@ pub async fn contract_cli() {
         "deploy" => interact.deploy().await,
         "createTrip" => interact.create_trip().await,
         "buyTicket" => interact.buy_ticket().await,
-        "issueNft" => interact.issue_nft().await,
-        "getTokenId" => interact.get_token_id().await,
-        "getTokenData" => interact.get_token_data().await,
-        "tokenId" => interact.token_id().await,
+        "issueToken" => interact.issue_token().await,
+        "nftTokenId" => interact.nft_token_id().await,
         "trips" => interact.trips().await,
         _ => panic!("unknown command: {}", &cmd),
     }
@@ -88,7 +86,11 @@ impl ContractInteract {
             .use_chain_simulator(config.use_chain_simulator());
 
         interactor.set_current_dir_from_workspace("contract");
-        let wallet_address = interactor.register_wallet(test_wallets::alice()).await;
+        // let wallet_address = interactor.register_wallet(test_wallets::alice()).await;
+
+        let wallet_key = Wallet::from_pem_file("../../wallet/wallet-owner.pem").unwrap();
+        let wallet_address: Address = wallet_key.to_address().into();
+        interactor.register_wallet(wallet_key.clone()).await;
 
         // Useful in the chain simulator setting
         // generate blocks until ESDTSystemSCAddress is enabled
@@ -112,7 +114,7 @@ impl ContractInteract {
             .interactor
             .tx()
             .from(&self.wallet_address)
-            .gas(30_000_000u64)
+            .gas(60_000_000u64)
             .typed(proxy::ContractProxy)
             .init()
             .code(&self.contract_code)
@@ -127,6 +129,8 @@ impl ContractInteract {
     }
 
     pub async fn create_trip(&mut self) {
+        let egld_amount = BigUint::<StaticApi>::from(0u128);
+
         let source = ManagedBuffer::new_from_bytes(&b""[..]);
         let destination = ManagedBuffer::new_from_bytes(&b""[..]);
         let date = ManagedBuffer::new_from_bytes(&b""[..]);
@@ -142,6 +146,7 @@ impl ContractInteract {
             .gas(30_000_000u64)
             .typed(proxy::ContractProxy)
             .create_trip(source, destination, date, time, price, ticket_count)
+            .egld(egld_amount)
             .returns(ReturnsResultUnmanaged)
             .run()
             .await;
@@ -172,10 +177,10 @@ impl ContractInteract {
         println!("Result: {response:?}");
     }
 
-    pub async fn issue_nft(&mut self) {
+    pub async fn issue_token(&mut self) {
         let egld_amount = BigUint::<StaticApi>::from(0u128);
 
-        let token_display_name = ManagedBuffer::new_from_bytes(&b""[..]);
+        let token_name = ManagedBuffer::new_from_bytes(&b""[..]);
         let token_ticker = ManagedBuffer::new_from_bytes(&b""[..]);
 
         let response = self
@@ -185,7 +190,7 @@ impl ContractInteract {
             .to(self.state.current_address())
             .gas(30_000_000u64)
             .typed(proxy::ContractProxy)
-            .issue_nft(token_display_name, token_ticker)
+            .issue_token(token_name, token_ticker)
             .egld(egld_amount)
             .returns(ReturnsResultUnmanaged)
             .run()
@@ -194,43 +199,13 @@ impl ContractInteract {
         println!("Result: {response:?}");
     }
 
-    pub async fn get_token_id(&mut self) {
+    pub async fn nft_token_id(&mut self) {
         let result_value = self
             .interactor
             .query()
             .to(self.state.current_address())
             .typed(proxy::ContractProxy)
-            .get_token_id()
-            .returns(ReturnsResultUnmanaged)
-            .run()
-            .await;
-
-        println!("Result: {result_value:?}");
-    }
-
-    pub async fn get_token_data(&mut self) {
-        let token_nonce = 0u64;
-
-        let result_value = self
-            .interactor
-            .query()
-            .to(self.state.current_address())
-            .typed(proxy::ContractProxy)
-            .get_token_data(token_nonce)
-            .returns(ReturnsResultUnmanaged)
-            .run()
-            .await;
-
-        println!("Result: {result_value:?}");
-    }
-
-    pub async fn token_id(&mut self) {
-        let result_value = self
-            .interactor
-            .query()
-            .to(self.state.current_address())
-            .typed(proxy::ContractProxy)
-            .token_id()
+            .nft_token_id()
             .returns(ReturnsResultUnmanaged)
             .run()
             .await;

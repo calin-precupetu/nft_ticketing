@@ -7,7 +7,7 @@ from multiversx_sdk import (
 )
 
 # Replace with your contract address
-contract = Address.new_from_bech32("erd1qqqqqqqqqqqqqpgquryd8zwcq6fcy6867ahjszpcj22sy2je325swas6jf")
+contract = Address.new_from_bech32("erd1qqqqqqqqqqqqqpgqrtewahvjcyel89zrtlvdgcgquldwq5sp325s0d5dl6")
 query_runner = QueryRunnerAdapter(ProxyNetworkProvider("https://devnet-api.multiversx.com"))
 query_controller = SmartContractQueriesController(query_runner)
 
@@ -15,7 +15,7 @@ query_controller = SmartContractQueriesController(query_runner)
 def get_token_id():
     data_parts = query_controller.query(
         contract=contract.to_bech32(),
-        function="getTokenId",
+        function="nftTokenId",
         arguments=[],  # No arguments for this view function
     )
     return data_parts

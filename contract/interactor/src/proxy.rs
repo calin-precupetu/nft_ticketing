@@ -77,9 +77,8 @@ where
         time: Arg3,
         price: Arg4,
         ticket_count: Arg5,
-    ) -> TxTypedCall<Env, From, To, NotPayable, Gas, ()> {
+    ) -> TxTypedCall<Env, From, To, (), Gas, ()> {
         self.wrapped_tx
-            .payment(NotPayable)
             .raw_call("createTrip")
             .argument(&source)
             .argument(&destination)
@@ -102,49 +101,27 @@ where
             .original_result()
     }
 
-    pub fn issue_nft<
+    pub fn issue_token<
         Arg0: ProxyArg<ManagedBuffer<Env::Api>>,
         Arg1: ProxyArg<ManagedBuffer<Env::Api>>,
     >(
         self,
-        token_display_name: Arg0,
+        token_name: Arg0,
         token_ticker: Arg1,
     ) -> TxTypedCall<Env, From, To, (), Gas, ()> {
         self.wrapped_tx
-            .raw_call("issueNft")
-            .argument(&token_display_name)
+            .raw_call("issueToken")
+            .argument(&token_name)
             .argument(&token_ticker)
             .original_result()
     }
 
-    pub fn get_token_id(
+    pub fn nft_token_id(
         self,
     ) -> TxTypedCall<Env, From, To, NotPayable, Gas, TokenIdentifier<Env::Api>> {
         self.wrapped_tx
             .payment(NotPayable)
-            .raw_call("getTokenId")
-            .original_result()
-    }
-
-    pub fn get_token_data<
-        Arg0: ProxyArg<u64>,
-    >(
-        self,
-        token_nonce: Arg0,
-    ) -> TxTypedCall<Env, From, To, NotPayable, Gas, EsdtTokenData<Env::Api>> {
-        self.wrapped_tx
-            .payment(NotPayable)
-            .raw_call("getTokenData")
-            .argument(&token_nonce)
-            .original_result()
-    }
-
-    pub fn token_id(
-        self,
-    ) -> TxTypedCall<Env, From, To, NotPayable, Gas, TokenIdentifier<Env::Api>> {
-        self.wrapped_tx
-            .payment(NotPayable)
-            .raw_call("tokenId")
+            .raw_call("nftTokenId")
             .original_result()
     }
 

@@ -5,9 +5,9 @@
 ////////////////////////////////////////////////////
 
 // Init:                                 1
-// Endpoints:                            7
-// Async Callback (empty):               1
-// Total number of exported functions:   9
+// Endpoints:                            5
+// Async Callback:                       1
+// Total number of exported functions:   7
 
 #![no_std]
 
@@ -20,12 +20,10 @@ multiversx_sc_wasm_adapter::endpoints! {
         init => init
         createTrip => create_trip
         buyTicket => buy_ticket
-        issueNft => issue_nft
-        getTokenId => get_token_id
-        getTokenData => get_token_data
-        tokenId => token_id
+        issueToken => issue_token
+        nftTokenId => nft_token_id
         trips => trips
     )
 }
 
-multiversx_sc_wasm_adapter::async_callback_empty! {}
+multiversx_sc_wasm_adapter::async_callback! { contract }
