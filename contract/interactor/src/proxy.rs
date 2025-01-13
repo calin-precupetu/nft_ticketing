@@ -101,16 +101,12 @@ where
             .original_result()
     }
 
-    pub fn set_special_roles<
-        Arg0: ProxyArg<ManagedAddress<Env::Api>>,
-    >(
+    pub fn set_special_roles(
         self,
-        address: Arg0,
     ) -> TxTypedCall<Env, From, To, NotPayable, Gas, ()> {
         self.wrapped_tx
             .payment(NotPayable)
             .raw_call("setSpecialRoles")
-            .argument(&address)
             .original_result()
     }
 

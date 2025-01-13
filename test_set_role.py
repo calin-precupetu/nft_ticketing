@@ -20,7 +20,7 @@ transaction_computer = TransactionComputer()
 
 # Sender and contract addresses
 sender = Address.new_from_bech32("erd1l0ug3af8jz902qt865rvkn0j9ja93h3mtlzkra0d4xxxgeu0325szx4mgc")
-contract_address = Address.new_from_bech32("erd1qqqqqqqqqqqqqpgq6er6chvccan8rp2p4sqn03f6xlzclm2h325swnejrg")
+contract_address = Address.new_from_bech32("erd1qqqqqqqqqqqqqpgq45eg5mulpqwh2665npzh2xvecm2968jq325stnm30k")
 
 # Get the sender's nonce
 sender_on_network = provider.get_account(sender)
@@ -31,7 +31,7 @@ token_identifier_hex = string_to_hex(token_identifier)
 new_creator = contract_address.hex()
 
 function = "setSpecialRoles"
-data = f"{function}@{new_creator}"
+data = f"{function}"
 
 transaction = Transaction(
     sender = sender.bech32(),

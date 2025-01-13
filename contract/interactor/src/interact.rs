@@ -179,8 +179,6 @@ impl ContractInteract {
     }
 
     pub async fn set_special_roles(&mut self) {
-        let address = bech32::decode("");
-
         let response = self
             .interactor
             .tx()
@@ -188,7 +186,7 @@ impl ContractInteract {
             .to(self.state.current_address())
             .gas(30_000_000u64)
             .typed(proxy::ContractProxy)
-            .set_special_roles(address)
+            .set_special_roles()
             .returns(ReturnsResultUnmanaged)
             .run()
             .await;

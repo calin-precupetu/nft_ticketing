@@ -101,21 +101,23 @@ pub trait Contract {
         }
 
         let mut name = ManagedBuffer::new();
-        name.append(&ManagedBuffer::from(b"Trip: "));
+        name.append(&ManagedBuffer::from(b"Trip "));
         let id_bytes = id.to_le_bytes();
         name.append(&ManagedBuffer::from(&id_bytes));
 
         let attributes_sha256 = self.crypto().sha256(&serialized_attributes);
         let attributes_hash = attributes_sha256.as_managed_buffer();
-        self.send().esdt_nft_create(
-            &nft_token_id,
-            &BigUint::from(NFT_AMOUNT),
-            &name,
-            &BigUint::from(ROYALTIES_MAX),
-            attributes_hash,
-            &trip_details,
-            &ManagedVec::new(),
-        );
+        for _ in 0..ticket_count {
+            self.send().esdt_nft_create(
+                &nft_token_id,
+                &BigUint::from(NFT_AMOUNT),
+                &name,
+                &BigUint::from(ROYALTIES_MAX),
+                attributes_hash,
+                &trip_details,
+                &ManagedVec::new(),
+            );
+        }
     }
 
     // #[allow(clippy::too_many_arguments)]
@@ -225,30 +227,9 @@ pub trait Contract {
         // self.tx().to(owner).payment(payment).transfer();
     }
 
-    // #[only_owner]
-    // #[endpoint(transferNftCreateRole)]
-    // fn transfer_nft_create_role(
-    //     &self,
-    //     old_creator: &ManagedAddress,
-    //     new_creator: &ManagedAddress,
-    // ) {
-    //     let nft_token_id = self.nft_token_id().get();
-    //     self.send()
-    //         .esdt_system_sc_tx() 
-    //         .transfer_nft_create_role(
-    //             &nft_token_id,
-    //             old_creator,
-    //             new_creator,
-    //         )
-    //         .with_callback(self.callbacks().issue_callback())
-    //         .async_call_and_exit();
-    // }
-
     #[only_owner]
     #[endpoint(setSpecialRoles)]
-    fn set_special_roles(&self, 
-        address: &ManagedAddress,
-    ) {
+    fn set_special_roles(&self) {
         let nft_token_id = self.nft_token_id().get();
         self.send()
             .esdt_system_sc_tx()
