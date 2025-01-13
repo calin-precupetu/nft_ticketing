@@ -22,7 +22,7 @@ multiversx_sc_wasm_adapter::endpoints! {
         buyTicket => buy_ticket
         setSpecialRoles => set_special_roles
         issueToken => issue_token
-        nftTokenId => nft_token_id
+        nftTokenIds => nft_token_ids
         trips => trips
     )
 }

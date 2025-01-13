@@ -32,10 +32,6 @@ impl<M: ManagedTypeApi> TrainTrip<M> {
             return Err("Ticket count must be greater than 0");
         }
 
-        if price < BigUint::from(25u32) || price > BigUint::from(100u32) {
-            return Err("Price must be between 0.25 and 1 EGLD");
-        }
-
         Ok(Self {
             id,
             source,
@@ -65,7 +61,6 @@ pub trait Contract {
         price: BigUint,
         ticket_count: u32,
     ) {
-        require!(price >= BigUint::from(25u32) && price <= BigUint::from(100u32), "Price must be between 0.25 and 1 EGLD");
         require!(ticket_count > 0, "Ticket count must be greater than 0");
 
         let id = self.trips().len() as u32 + 1;
@@ -82,7 +77,7 @@ pub trait Contract {
 
         self.trips().push(&trip);
 
-        let nft_token_id = self.nft_token_id().get();
+        let nft_token_id = self.nft_token_ids().get((id) as usize);
 
         let trip_details = match TrainTrip::new(id.clone(),
                                                 source.clone(),
@@ -100,14 +95,12 @@ pub trait Contract {
             sc_panic!("Attributes encode error: {}", err.message_bytes());
         }
 
-        let mut name = ManagedBuffer::new();
-        name.append(&ManagedBuffer::from(b"Trip "));
-        let id_bytes = id.to_le_bytes();
-        name.append(&ManagedBuffer::from(&id_bytes));
-
         let attributes_sha256 = self.crypto().sha256(&serialized_attributes);
         let attributes_hash = attributes_sha256.as_managed_buffer();
         for _ in 0..ticket_count {
+            let mut name = ManagedBuffer::new();
+            name.append(&ManagedBuffer::from(b"Ticket "));
+
             self.send().esdt_nft_create(
                 &nft_token_id,
                 &BigUint::from(NFT_AMOUNT),
@@ -120,120 +113,53 @@ pub trait Contract {
         }
     }
 
-    // #[allow(clippy::too_many_arguments)]
-    // fn create_nft_with_attributes<T: TopEncode>(
-    //     &self,
-    //     name: ManagedBuffer,
-    //     royalties: BigUint,
-    //     attributes: T,
-    //     uri: ManagedBuffer,
-    //     selling_price: BigUint,
-    //     token_used_as_payment: EgldOrEsdtTokenIdentifier,
-    //     token_used_as_payment_nonce: u64,
-    // ) -> u64 {
-    //     self.require_token_issued();
-    //     require!(royalties <= ROYALTIES_MAX, "Royalties cannot exceed 100%");
-
-    //     let nft_token_id = self.nft_token_id().get();
-
-    //     let mut serialized_attributes = ManagedBuffer::new();
-    //     if let core::result::Result::Err(err) = attributes.top_encode(&mut serialized_attributes) {
-    //         sc_panic!("Attributes encode error: {}", err.message_bytes());
-    //     }
-
-    //     let attributes_sha256 = self.crypto().sha256(&serialized_attributes);
-    //     let attributes_hash = attributes_sha256.as_managed_buffer();
-    //     let uris = ManagedVec::from_single_item(uri);
-    //     let nft_nonce = self.send().esdt_nft_create(
-    //         &nft_token_id,
-    //         &BigUint::from(NFT_AMOUNT),
-    //         &name,
-    //         &royalties,
-    //         attributes_hash,
-    //         &attributes,
-    //         &uris,
-    //     );
-    // }
-
-
     #[endpoint(buyTicket)]
     #[payable("*")]
     fn buy_ticket(
         &self,
         id: u64
     ) {
-        require!(self.trips().len() > id as usize, "Trip with specified ID does not exist");
+        require!(self.trips().len() >= id as usize, "Trip with specified ID does not exist");
 
         let trip = self.trips().get(id as usize);
         
         let total_paid = self.call_value().egld_value();
-        require!(total_paid.clone_value() == trip.price, "Payment does not match the ticket price");
+        require!(total_paid.clone_value() == 1, "Payment does not match the ticket price");
 
-        require!(trip.ticket_count > 0, "No tickets available");
+        require!(trip.ticket_count > 0, "No tickets available. Price of the ticket: {} EGLD, total paid: {}", trip.price, total_paid);
+
+        let nft_nonce = trip.ticket_count.into();
 
         let mut updated_trip = trip.clone();
         updated_trip.ticket_count -= 1;
         
         self.trips().set(id as usize, &updated_trip);
-        
-        //  creare NFT
 
-        let mut ticket_attributes_buffer = ManagedBuffer::new();
-        ticket_attributes_buffer.append(&ManagedBuffer::from(b"TripID: "));
-        let id_bytes = id.to_le_bytes();
-        ticket_attributes_buffer.append(&ManagedBuffer::from(&id_bytes));
+        let nft_token_id = self.nft_token_ids().get(id as usize);
 
-        // self.token_id().nft_create_and_send(
-        //     &self.blockchain().get_caller(),
-        //     BigUint::from(1u32),
-        //     &ticket_attributes_buffer,
-        // );
-
-        // // Create NFT with the trip ID as an attribute
-        // let nft_token_id = TokenIdentifier::from(ManagedBuffer::from(b"train_ticket"));
-        // let mut ticket_attributes_buffer = ManagedBuffer::new();
-        // ticket_attributes_buffer.append(&ManagedBuffer::from(b"TripID: "));
-        // let id_bytes = id.to_le_bytes();
-        // ticket_attributes_buffer.append(&ManagedBuffer::from(&id_bytes));
-
-        // // Hash the attributes to create a unique identifier for the NFT
-        // let attributes_sha256 = self.crypto().sha256(&ticket_attributes_buffer);
-        // let attributes_hash = attributes_sha256.as_managed_buffer();
-
-        // // Define the name of the NFT (could be the trip's source and destination for example)
-        // let nft_name = ManagedBuffer::from(b"Train Ticket");
-
-        // // Create the NFT
-        // self.send().esdt_nft_create(
-        //     &nft_token_id,                // NFT token ID (class identifier)
-        //     &BigUint::from(1u32),          // Quantity (1 ticket per NFT)
-        //     &nft_name,                     // Name of the NFT
-        //     &BigUint::from(0u32),          // Royalties (assuming no royalties for simplicity)
-        //     attributes_hash,               // Hash of the attributes
-        //     &ManagedBuffer::new(),         // Card details or additional metadata
-        //     &ManagedVec::new(),            // Additional optional fields
-        // );
-
-        // let nonce: u64 = 1;
-
-        // self.send().direct_esdt(
-        //     &self.blockchain().get_caller(),
-        //     self.token_id().get_token_id_ref(),
-        //     &BigUint::from(NFT_AMOUNT),
-        // );
-
-        // let payment = self.call_value().egld_value();
-        // let owner = self.blockchain().get_owner_address();
-        // self.tx().to(owner).payment(payment).transfer();
+        self.send().direct_esdt(
+            &self.blockchain().get_caller(),
+            &nft_token_id,
+            nft_nonce,
+            &BigUint::from(NFT_AMOUNT),
+        );
     }
 
     #[only_owner]
     #[endpoint(setSpecialRoles)]
     fn set_special_roles(&self) {
-        let nft_token_id = self.nft_token_id().get();
+        // Retrieve the last token ID from the vector
+        let nft_token_ids = self.nft_token_ids();
+        let last_index = nft_token_ids.len();
+        let last_token_id = nft_token_ids.get(last_index);
+
         self.send()
             .esdt_system_sc_tx()
-            .set_special_roles(&self.blockchain().get_sc_address(), &nft_token_id, [EsdtLocalRole::NftCreate][..].iter().cloned(),)
+            .set_special_roles(
+                &self.blockchain().get_sc_address(),
+                &last_token_id,
+                [EsdtLocalRole::NftCreate][..].iter().cloned(),
+            )
             .async_call_and_exit();
     }
 
@@ -242,8 +168,6 @@ pub trait Contract {
     #[payable("EGLD")]
     #[endpoint(issueToken)]
     fn issue_token(&self, token_name: ManagedBuffer, token_ticker: ManagedBuffer) {
-        require!(self.nft_token_id().is_empty(), "Token already issued");
-
         let payment_amount = self.call_value().egld_value();
         self.send()
             .esdt_system_sc_tx()
@@ -272,7 +196,7 @@ pub trait Contract {
     ) {
         match result {
             ManagedAsyncCallResult::Ok(token_id) => {
-                self.nft_token_id().set(&token_id.unwrap_esdt());
+                self.nft_token_ids().push(&token_id.unwrap_esdt());
             }
             ManagedAsyncCallResult::Err(_) => {
                 let returned = self.call_value().egld_or_single_esdt();
@@ -283,25 +207,11 @@ pub trait Contract {
         }
     }
 
-    // fn send_nft_to_caller(
-    //     &self,
-    //     nonce: u64
-    // ) {
-    //     self.send().direct_esdt(
-    //         &self.blockchain().get_caller(),
-    //         self.token_id().get_token_id_ref(),
-    //         nonce,
-    //         &BigUint::from(NFT_AMOUNT),
-    //     );
-    // }
-
-    // 
-
     // Storage mappers
 
-    #[view(nftTokenId)]
-    #[storage_mapper("nftTokenId")]
-    fn nft_token_id(&self) -> SingleValueMapper<TokenIdentifier>;
+    #[view(nftTokenIds)]
+    #[storage_mapper("nftTokenIds")]
+    fn nft_token_ids(&self) -> VecMapper<TokenIdentifier>;
 
     #[view(trips)]
     #[storage_mapper("trips")]

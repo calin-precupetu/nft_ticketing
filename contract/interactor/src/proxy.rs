@@ -125,12 +125,12 @@ where
             .original_result()
     }
 
-    pub fn nft_token_id(
+    pub fn nft_token_ids(
         self,
-    ) -> TxTypedCall<Env, From, To, NotPayable, Gas, TokenIdentifier<Env::Api>> {
+    ) -> TxTypedCall<Env, From, To, NotPayable, Gas, MultiValueEncoded<Env::Api, TokenIdentifier<Env::Api>>> {
         self.wrapped_tx
             .payment(NotPayable)
-            .raw_call("nftTokenId")
+            .raw_call("nftTokenIds")
             .original_result()
     }
 

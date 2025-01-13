@@ -12,21 +12,21 @@ provider = ProxyNetworkProvider("https://devnet-gateway.multiversx.com")
 network_config = provider.get_network_config()
 
 # Initialize signer from wallet PEM file
-signer = UserSigner.from_pem_file(Path("wallet/wallet-owner.pem"))
+signer = UserSigner.from_pem_file(Path("/home/usuario/Desktop/BLOCKCHAIN/new_wallet.pem"))
 transaction_computer = TransactionComputer()
 
 # Sender and contract addresses
-sender = Address.new_from_bech32("erd1l0ug3af8jz902qt865rvkn0j9ja93h3mtlzkra0d4xxxgeu0325szx4mgc")
-contract_address = Address.new_from_bech32("erd1qqqqqqqqqqqqqpgqrtewahvjcyel89zrtlvdgcgquldwq5sp325s0d5dl6")
+sender = Address.new_from_bech32("erd1fzg7jf50sdn6rka8vpqueyqzq96ncfjl3ccgvjz0puj97t6ht7kq6kutgs")
+contract_address = Address.new_from_bech32("erd1qqqqqqqqqqqqqpgq6499dpelkyfe5z537t9tfa22el0kqel6325sdwnfyq")
 
 # Get the sender's nonce
 sender_on_network = provider.get_account(sender)
 
 # Trip ID for the ticket purchase
 trip_id = 1  # Replace with the desired trip ID (e.g., 0 for the first trip)
-trip_id_hex = f"{trip_id:02x}"
+trip_id_hex = "02"
 
-ticket_price = 50 
+ticket_price = 10**18
 
 # Prepare transaction data for the buyTicket endpoint
 function = "buyTicket"
