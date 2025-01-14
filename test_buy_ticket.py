@@ -12,12 +12,12 @@ provider = ProxyNetworkProvider("https://devnet-gateway.multiversx.com")
 network_config = provider.get_network_config()
 
 # Initialize signer from wallet PEM file
-signer = UserSigner.from_pem_file(Path("new_wallet.pem"))
+signer = UserSigner.from_pem_file(Path("wallet/wallet-customer.pem"))
 transaction_computer = TransactionComputer()
 
 # Sender and contract addresses
 sender = Address.new_from_bech32("erd1cxewtr572l43ah5w6p506q0x9sqjl099e9l60awmwd05s472ex4qk0nzlp")
-contract_address = Address.new_from_bech32("erd1qqqqqqqqqqqqqpgqtcvvvpkqzg740uspt3dsgjr9pvg08xxv325sag5udl")
+contract_address = Address.new_from_bech32("erd1qqqqqqqqqqqqqpgq0ggr9wnkzcrma6y58ulv3d96m73wqgmw325su43v8s")
 
 # Get the sender's nonce
 sender_on_network = provider.get_account(sender)

@@ -7,7 +7,7 @@ from multiversx_sdk import (
 )
 
 # Replace with your contract address
-contract = Address.new_from_bech32("erd1qqqqqqqqqqqqqpgqtcvvvpkqzg740uspt3dsgjr9pvg08xxv325sag5udl")
+contract = Address.new_from_bech32("erd1qqqqqqqqqqqqqpgq0ggr9wnkzcrma6y58ulv3d96m73wqgmw325su43v8s")
 query_runner = QueryRunnerAdapter(ProxyNetworkProvider("https://devnet-api.multiversx.com"))
 query_controller = SmartContractQueriesController(query_runner)
 
