@@ -212,25 +212,22 @@ pub trait Contract {
     fn int_to_bytes(&self, i: u32) -> ManagedBuffer {
         let mut ticket_id_bytes = ManagedBuffer::new();
     
-        // Special case for 0, since the loop will not handle it
         if i == 0 {
             ticket_id_bytes.append(&ManagedBuffer::from(&[b'0'][..]));
             return ticket_id_bytes;
         }
 
         let mut n = i;
-        let mut digits = [0u8; 10];  // Array to store digits
+        let mut digits = [0u8; 10];
         let mut digit_count = 0;
 
-        // Extract digits into the array
         while n > 0 {
-            digits[digit_count] = b'0' + (n % 10) as u8;  // Convert digit to byte
+            digits[digit_count] = b'0' + (n % 10) as u8;
             digit_count += 1;
             n /= 10;
         }
 
-        // Append digits in the correct order
-        for i in (0..digit_count).rev() {  // Iterate in reverse to add digits correctly
+        for i in (0..digit_count).rev() {
             ticket_id_bytes.append(&ManagedBuffer::from(&[digits[i]][..]));
         }
 

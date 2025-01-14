@@ -91,15 +91,21 @@ export const TicketsAbi = ({ callbackRoute }: WidgetProps) => {
             <FontAwesomeIcon icon={faRefresh} className="mr-1" />
             Refresh Trips
           </Button>
-
-          <Button
-            onClick={handleBuyTicket}
-            className="inline-block rounded-lg px-3 py-2 text-center hover:no-underline my-0 bg-blue-600 text-white hover:bg-blue-700 mr-0 disabled:bg-gray-200 disabled:text-black disabled:cursor-not-allowed"
-            disabled={!selectedTrip}
-          >
-            <FontAwesomeIcon icon={faMoneyBill} className="mr-1" />
-            Buy Ticket
-          </Button>
+          <div className="relative group">
+            <Button
+              onClick={handleBuyTicket}
+              className="inline-block rounded-lg px-3 py-2 text-center hover:no-underline my-0 bg-blue-600 text-white hover:bg-blue-700 mr-0 disabled:bg-gray-200 disabled:text-black disabled:cursor-not-allowed"
+              disabled={!selectedTrip}
+            >
+              <FontAwesomeIcon icon={faMoneyBill} className="mr-1" />
+              Buy Ticket
+            </Button>
+            {!selectedTrip && (
+              <div className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 bg-black text-white text-xs rounded px-4 py-2 opacity-0 group-hover:opacity-100 transition-opacity w-64">
+                In order to buy a train ticket, please click on the desired trip.
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

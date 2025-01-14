@@ -17,10 +17,10 @@ const WIDGETS: WidgetType[] = [
     reference: 'https://docs.multiversx.com/sdk-and-tools/sdk-dapp/#account'
   },
   {
-    title: 'Tickets(ABI)',
+    title: 'Tickets',
     widget: TicketsAbi,
     description:
-      'Smart Contract interactions using the ABI generated transactions',
+      'View and purchase a train ticket',
     reference:
       'https://docs.multiversx.com/sdk-and-tools/sdk-js/sdk-js-cookbook/#using-interaction-when-the-abi-is-available',
     anchor: 'ping-pong-abi'
