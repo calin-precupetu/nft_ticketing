@@ -87,7 +87,7 @@ impl ContractInteract {
             .use_chain_simulator(config.use_chain_simulator());
 
         interactor.set_current_dir_from_workspace("contract");
-        // let wallet_address = interactor.register_wallet(test_wallets::alice()).await;
+        //let wallet_address = interactor.register_wallet(test_wallets::alice()).await;
 
         let wallet_key = Wallet::from_pem_file("../../wallet/wallet-owner.pem").unwrap();
         let wallet_address: Address = wallet_key.to_address().into();
@@ -115,7 +115,7 @@ impl ContractInteract {
             .interactor
             .tx()
             .from(&self.wallet_address)
-            .gas(60_000_000u64)
+            .gas(30_000_000u64)
             .typed(proxy::ContractProxy)
             .init()
             .code(&self.contract_code)

@@ -124,9 +124,9 @@ pub trait Contract {
         let trip = self.trips().get(id as usize);
         
         let total_paid = self.call_value().egld_value();
-        require!(total_paid.clone_value() == 1, "Payment does not match the ticket price");
-
-        require!(trip.ticket_count > 0, "No tickets available. Price of the ticket: {} EGLD, total paid: {}", trip.price, total_paid);
+        require!(total_paid.clone_value() == trip.price , "Payment does not match the ticket price");
+        
+        require!(trip.ticket_count > 0, "No tickets available.");
 
         let nft_nonce = trip.ticket_count.into();
 
